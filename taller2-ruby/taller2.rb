@@ -291,7 +291,7 @@ end
 puts " EXTRACTOR DE VIDEOJUEGOS DE STEAM"
 
 url_base = "https://store.steampowered.com/search/"
-
+#para que imprima solo 20 y no se demore tanto
 limite = 20
 
 puts
