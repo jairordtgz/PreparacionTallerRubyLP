@@ -124,30 +124,3 @@ puts "Nota: No comparta las confesiones... XD"
 
 
 
-def imprimir_juego(juego)
-
-  puts "--------------------------------------"
-  puts "Nombre        : #{juego[:nombre]}"
-  puts "Enlace        : #{juego[:enlace]}"
-  puts "Fecha         : #{juego[:fecha]}"
-  puts "Generos       : #{juego[:generos]}"
-  puts "Precio        : #{juego[:precio]}"
-  puts "Desarrollador : #{juego[:desarrollador]}"
-  puts "--------------------------------------"
-
-end 
-
-2. Solo en ExtractorOferta agrega este método
-def imprimir_juego(juego)
-
-  puts "--------------------------------------"
-  puts "Nombre            : #{juego[:nombre]}"
-  puts "Enlace            : #{juego[:enlace]}"
-  puts "Fecha             : #{juego[:fecha]}"
-  puts "Generos           : #{juego[:generos]}"
-  puts "Precio Original   : #{juego[:precio_original]}"
-  puts "Precio Final      : #{juego[:precio_final]}"
-  puts "Desarrollador     : #{juego[:desarrollador]}"
-  puts "--------------------------------------"
-
-end
