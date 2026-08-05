@@ -263,13 +263,6 @@ class ExtractorGratuitos < ExtractorSteam
     lista.each do |item|
       break if contador >= @limite
 
-      texto_precio = limpiar_texto(
-        item.css(".search_price").text
-      ).downcase
-
-      next unless texto_precio.include?("free") ||
-                  texto_precio.include?("play")
-
       nombre = limpiar_texto(
         item.at_css("span.title")&.text
       )
@@ -299,7 +292,6 @@ puts " EXTRACTOR DE VIDEOJUEGOS DE STEAM"
 
 url_base = "https://store.steampowered.com/search/"
 
-# Número de juegos a extraer de cada categoría
 limite = 20
 
 puts
