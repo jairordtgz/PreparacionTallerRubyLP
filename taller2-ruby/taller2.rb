@@ -100,7 +100,6 @@ class ExtractorSteam
   end
 
   def imprimir_juego(juego)
-
     puts "--------------------------------------"
     puts "Nombre        : #{juego[:nombre]}"
     puts "Enlace        : #{juego[:enlace]}"
@@ -108,8 +107,7 @@ class ExtractorSteam
     puts "Generos       : #{juego[:generos]}"
     puts "Precio        : #{juego[:precio]}"
     puts "Desarrollador : #{juego[:desarrollador]}"
-    puts "--------------------------------------"
-
+    puts ""
   end
 
 end
@@ -158,7 +156,7 @@ class ExtractorGeneral < ExtractorSteam
   end
 end
 
-class ExtractorOferta < ExtractorSteam
+class ExtractorOfertas < ExtractorSteam
 
   def obtener_pagina(url_general)
     puts "Consultando juegos en oferta..."
@@ -179,24 +177,74 @@ class ExtractorOferta < ExtractorSteam
 
       enlace = item["href"] || ""
 
-      precio = limpiar_texto(
+      precio_original = limpiar_texto(
+        item.at_css(".discount_original_price")&.text
+      )
+
+      precio_final = limpiar_texto(
         item.at_css(".discount_final_price")&.text
       )
 
-      precio = "0" if precio == ""
+      precio_original = "0" if precio_original == ""
+      precio_final = "0" if precio_final == ""
+
       detalle = extraer_juego(enlace)
       juego = {
         nombre: nombre,
         enlace: enlace,
         fecha: detalle[:fecha],
         generos: detalle[:generos],
-        precio: precio,
+        precio_original: precio_original,
+        precio_final: precio_final,
         desarrollador: detalle[:desarrollador]
       }
+
       @juegos << juego
       imprimir_juego(juego)
       contador += 1
     end
+
+    def imprimir_juego(juego)
+
+      puts "--------------------------------------"
+      puts "Nombre            : #{juego[:nombre]}"
+      puts "Enlace            : #{juego[:enlace]}"
+      puts "Fecha             : #{juego[:fecha]}"
+      puts "Generos           : #{juego[:generos]}"
+      puts "Precio Original   : #{juego[:precio_original]}"
+      puts "Precio Final      : #{juego[:precio_final]}"
+      puts "Desarrollador     : #{juego[:desarrollador]}"
+      puts ""
+
+    end
+  end
+
+  def exportar_csv(nombre_archivo)
+    CSV.open(nombre_archivo, "w") do |csv|
+      csv << [
+        "Nombre",
+        "Enlace",
+        "Fecha",
+        "Generos",
+        "Precio Original",
+        "Precio Final",
+        "Desarrollador"
+      ]
+
+      @juegos.each do |juego|
+        csv << [
+          juego[:nombre],
+          juego[:enlace],
+          juego[:fecha],
+          juego[:generos],
+          juego[:precio_original],
+          juego[:precio_final],
+          juego[:desarrollador]
+        ]
+
+      end
+    end
+    puts "Archivo #{nombre_archivo} generado correctamente."
   end
 end
 
@@ -270,7 +318,7 @@ general.exportar_csv("juegos_generales.csv")
 puts
 puts "Extrayendo juegos en oferta..."
 
-ofertas = ExtractorOferta.new(
+ofertas = ExtractorOfertas.new(
   url_base,
   "Oferta",
   "",
@@ -293,7 +341,6 @@ gratuitos = ExtractorGratuitos.new(
 gratuitos.obtener_juegos
 gratuitos.exportar_csv("juegos_gratuitos.csv")
 
-puts
 puts "======================================"
 puts "Proceso finalizado correctamente."
 puts "Archivos generados:"
