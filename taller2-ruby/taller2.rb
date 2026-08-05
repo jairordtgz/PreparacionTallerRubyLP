@@ -161,7 +161,6 @@ end
 class ExtractorOferta < ExtractorSteam
 
   def obtener_pagina(url_general)
-
     puts "Consultando juegos en oferta..."
     super(url_general + "?specials=1")
   end
@@ -200,3 +199,104 @@ class ExtractorOferta < ExtractorSteam
     end
   end
 end
+
+class ExtractorGratuitos < ExtractorSteam
+
+  def obtener_pagina(url_general)
+    puts "Consultando juegos gratuitos..."
+    super(url_general + "?maxprice=free")
+  end
+
+  def obtener_juegos
+    pagina = obtener_pagina(@url)
+    lista = pagina.css("a.search_result_row")
+    contador = 0
+
+    lista.each do |item|
+      break if contador >= @limite
+
+      texto_precio = limpiar_texto(
+        item.css(".search_price").text
+      ).downcase
+
+      next unless texto_precio.include?("free") ||
+                  texto_precio.include?("play")
+
+      nombre = limpiar_texto(
+        item.at_css("span.title")&.text
+      )
+
+      enlace = item["href"] || ""
+      detalle = extraer_juego(enlace)
+
+      juego = {
+        nombre: nombre,
+        enlace: enlace,
+        fecha: detalle[:fecha],
+        generos: detalle[:generos],
+        precio: "0",
+        desarrollador: detalle[:desarrollador]
+      }
+
+      @juegos << juego
+      imprimir_juego(juego)
+      contador += 1
+
+    end
+  end
+end
+
+
+puts " EXTRACTOR DE VIDEOJUEGOS DE STEAM"
+
+url_base = "https://store.steampowered.com/search/"
+
+# Número de juegos a extraer de cada categoría
+limite = 20
+
+puts
+puts "Extrayendo juegos generales..."
+
+general = ExtractorGeneral.new(
+  url_base,
+  "General",
+  "",
+  limite
+)
+
+general.obtener_juegos
+general.exportar_csv("juegos_generales.csv")
+
+puts
+puts "Extrayendo juegos en oferta..."
+
+ofertas = ExtractorOferta.new(
+  url_base,
+  "Oferta",
+  "",
+  limite
+)
+
+ofertas.obtener_juegos
+ofertas.exportar_csv("juegos_oferta.csv")
+
+puts
+puts "Extrayendo juegos gratuitos..."
+
+gratuitos = ExtractorGratuitos.new(
+  url_base,
+  "Gratuitos",
+  "",
+  limite
+)
+
+gratuitos.obtener_juegos
+gratuitos.exportar_csv("juegos_gratuitos.csv")
+
+puts
+puts "======================================"
+puts "Proceso finalizado correctamente."
+puts "Archivos generados:"
+puts "- juegos_generales.csv"
+puts "- juegos_oferta.csv"
+puts "- juegos_gratuitos.csv"
